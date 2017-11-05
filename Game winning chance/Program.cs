@@ -7,8 +7,8 @@ namespace Game_winning_chance
 {
     class Program
     {
-        const int numberOfSets = 300000;
-        const string outputFile = "output.txt";
+        const int numberOfSets = 300000; //make sure not to export detailed results if there are > 1M rows or Excel will choke
+        const string outputFile = "output.txt"; //the output will be place in the run directory in a text file
 
         static void Main(string[] args)
         {
@@ -20,6 +20,11 @@ namespace Game_winning_chance
             OutputSummaryResultsVaryingChances(numberOfGamesMax);
         }
 
+        /// <summary>
+        /// Outputs results for a range of win chances defined in the first few lines. Exports only summary data (because there are often
+        /// too many iterations for Excel to handle, 1M+)
+        /// </summary>
+        /// <param name="maxGames"></param>
         static void OutputSummaryResultsVaryingChances(int maxGames)
         {
             int winChanceStep = 5;
@@ -40,6 +45,11 @@ namespace Game_winning_chance
             File.WriteAllLines(outputFile, output);
         }
 
+        /// <summary>
+        /// Outputs results only for a single win chance. Exports detailed set results including individual game outcomes.
+        /// </summary>
+        /// <param name="winChance"></param>
+        /// <param name="maxGames"></param>
         static void OutputDetailedResultsByWinChance(int winChance, int maxGames)
         {            
             for (int gameCount = 1; gameCount <= maxGames; gameCount += 2)
@@ -64,23 +74,24 @@ namespace Game_winning_chance
         public Set(int numberOfGames, int winChancePct)
         {
             NumberOfGames = numberOfGames;
-            GamesNeedToWin = Convert.ToInt32(Math.Floor(NumberOfGames / 2m));
+            GamesNeededToWin = Convert.ToInt32(Math.Floor(NumberOfGames / 2m));
             Games = Enumerable.Range(1, numberOfGames)
                               .Select(i => new Game(winChancePct))
                               .ToList();
         }
 
-        public int GamesNeedToWin { get; private set; }
-        public bool WonSet => Games.Where(g => g.Won).Count() > GamesNeedToWin;
+        public int GamesNeededToWin { get; private set; }
+        public bool WonSet => Games.Where(g => g.Won).Count() > GamesNeededToWin;
         public string WonSetString => WonSet ? "Win" : "Loss";
 
+        //Used for the detailed outputs; can be copied and pasted into Excel
         public override string ToString() => $"{WonSetString}\t{NumberOfGames}\t{String.Join(string.Empty, Games.Select(g => g.ToString()))}";
     }
 
     public class Game
     {
         public bool Won { get; set; } //True=Win
-        private static Random rnd = new Random(TickSeed());
+        private static Random rnd = new Random(TickSeed()); //this is static to control the shittyness of pseudo randomness, and also to improve performance
         public Game(int winChance)
         {
             Won = rnd.Next(1, 100) <= winChance;
