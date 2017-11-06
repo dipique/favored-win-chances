@@ -69,47 +69,4 @@ namespace Game_winning_chance
             }
         }
     }
-
-    public class Set
-    {
-        public int NumberOfGames { get; private set; }
-        public List<Game> Games { get; private set; }
-        public Set(int numberOfGames, int winChancePct)
-        {
-            NumberOfGames = numberOfGames;
-            GamesNeededToWin = Convert.ToInt32(Math.Ceiling(NumberOfGames / 2m));
-            Games = Enumerable.Range(1, numberOfGames)
-                              .Select(i => new Game(winChancePct))
-                              .ToList();
-        }
-
-        public int GamesNeededToWin { get; private set; }
-        public bool WonSet => Games.Where(g => g.Won).Count() >= GamesNeededToWin;
-        public string WonSetString => WonSet ? "Win" : "Loss";
-
-        //Used for the detailed outputs; can be copied and pasted into Excel
-        public override string ToString() => $"{WonSetString}\t{NumberOfGames}\t{String.Join(string.Empty, Games.Select(g => g.ToString()))}";
-    }
-
-    public class Game
-    {
-        public bool Won { get; set; } //True=Win
-        private static Random rnd = new Random(TickSeed()); //this is static to control the shittyness of pseudo randomness, and also to improve performance
-        public Game(int winChance)
-        {
-            Won = rnd.Next(1, 100) <= winChance;
-        }
-
-        public override string ToString() => Won ? "W" : "L";
-
-        private static int TickSeed()
-        {
-            long currentVal = DateTime.Now.Ticks;
-            while (currentVal > int.MaxValue)
-            {
-                currentVal = currentVal / (1 + DateTime.Now.Second);
-            }
-            return Convert.ToInt32(currentVal);
-        }
-    }
 }
