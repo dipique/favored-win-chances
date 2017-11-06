@@ -7,7 +7,7 @@ namespace Game_winning_chance
 {
     class Program
     {
-        const int numberOfSets = 100000; //make sure not to export detailed results if there are > 1M rows or Excel will choke
+        const int numberOfSets = 1000000; //make sure not to export detailed results if there are > 1M rows or Excel will choke
         const string outputFile = "output.txt"; //the output will be place in the run directory in a text file
 
         static void Main(string[] args)

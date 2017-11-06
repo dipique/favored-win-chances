@@ -12,7 +12,7 @@ namespace Game_winning_chance
         private static Random rnd = new Random(TickSeed()); //this is static to control the shittyness of pseudo randomness, and also to improve performance
         public Game(int winChance)
         {
-            Won = rnd.Next(1, 100) <= winChance;
+            Won = rnd.Next(1, 101) <= winChance;
         }
 
         //Used for detailed outputs where set results look like this "WWWLW"
