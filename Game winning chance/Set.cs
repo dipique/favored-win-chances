@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Game_winning_chance
 {
@@ -20,7 +18,7 @@ namespace Game_winning_chance
         }
 
         public int GamesNeededToWin { get; private set; }
-        public bool WonSet => Games.Where(g => g.Won).Count() >= GamesNeededToWin;
+        public bool WonSet => Games.Count(g => g.Won) >= GamesNeededToWin;
         public string WonSetString => WonSet ? "Win" : "Loss";
 
         //Used for the detailed outputs; can be copied and pasted into Excel
