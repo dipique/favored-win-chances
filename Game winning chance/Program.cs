@@ -7,32 +7,35 @@ namespace Game_winning_chance
 {
     class Program
     {
-        const int numberOfSets = 300000; //make sure not to export detailed results if there are > 1M rows or Excel will choke
+        const int numberOfSets = 1000000; //make sure not to export detailed results if there are > 1M rows or Excel will choke
         const string outputFile = "output.txt"; //the output will be place in the run directory in a text file
 
         static void Main(string[] args)
         {
             //int winChance = 65; //65%
-            int numberOfGamesMax = 20;
+            int numberOfGamesMax = 19;
+            int numberOfGamesMin = 1;
+            int winChanceStep = 10;
+            int minWinChance = 30;
+            int maxWinChance = 70;
             File.Delete(outputFile);
 
             //OutputDetailedResultsByWinChance(winChance, numberOfGamesMax);
-            OutputSummaryResultsVaryingChances(numberOfGamesMax);
+            OutputSummaryResultsVaryingChances(numberOfGamesMax, maxWinChance, minWinChance, winChanceStep, numberOfGamesMin);
         }
 
         /// <summary>
-        /// Outputs results for a range of win chances defined in the first few lines. Exports only summary data (because there are often
+        /// Outputs results for a range of win chances defined in the parameters. Exports only summary data (because there are often
         /// too many iterations for Excel to handle, 1M+)
         /// </summary>
         /// <param name="maxGames"></param>
-        static void OutputSummaryResultsVaryingChances(int maxGames)
+        static void OutputSummaryResultsVaryingChances(int maxGames = 9, int maxWinChance = 70, int minWinChance = 30, int winChanceStep = 5, int minGames = 1)
         {
-            int winChanceStep = 5;
-            int minWinChance = 30;
-            int maxWinChance = 70;
-            List<string> output = new List<string>();
-            output.Add("Set Count\tWonSets\tGame Count\tWin Chance");
-            for (int gameCount = 1; gameCount <= maxGames; gameCount += 2)
+            var output = new List<string> {
+                "Set Count\tWonSets\tGame Count\tWin Chance" //header line
+            };
+
+            for (int gameCount = minGames; gameCount <= maxGames; gameCount += 2)
             {
                 Console.WriteLine($"\rAnalyzer for game count of: {gameCount}");
                 for (int winChance = minWinChance; winChance <= maxWinChance; winChance += winChanceStep)
@@ -74,14 +77,14 @@ namespace Game_winning_chance
         public Set(int numberOfGames, int winChancePct)
         {
             NumberOfGames = numberOfGames;
-            GamesNeededToWin = Convert.ToInt32(Math.Floor(NumberOfGames / 2m));
+            GamesNeededToWin = Convert.ToInt32(Math.Ceiling(NumberOfGames / 2m));
             Games = Enumerable.Range(1, numberOfGames)
                               .Select(i => new Game(winChancePct))
                               .ToList();
         }
 
         public int GamesNeededToWin { get; private set; }
-        public bool WonSet => Games.Where(g => g.Won).Count() > GamesNeededToWin;
+        public bool WonSet => Games.Where(g => g.Won).Count() >= GamesNeededToWin;
         public string WonSetString => WonSet ? "Win" : "Loss";
 
         //Used for the detailed outputs; can be copied and pasted into Excel
